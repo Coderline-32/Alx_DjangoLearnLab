@@ -4,7 +4,7 @@ This directory contains the first task of my Django learning journey under the A
 
 ## ✅ Task Objective
 
-Set up a basic Django project and understand the default project structure.
+Set up a basic Django project and understand the default project structure..
 
 ---
 
