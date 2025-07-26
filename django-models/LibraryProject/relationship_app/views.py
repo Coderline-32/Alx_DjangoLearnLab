@@ -5,6 +5,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import permission_required, user_passes_test
 from django import forms
+from .models import Library
 
 # Import all necessary models
 from .models import Author, Book, Library, Librarian, UserProfile
