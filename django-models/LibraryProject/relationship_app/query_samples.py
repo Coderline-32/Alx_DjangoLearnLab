@@ -40,6 +40,18 @@ def get_librarian_of_library(library_name):
     except Librarian.DoesNotExist:
         print(f"No librarian assigned to library '{library_name}'")
 
+def get_librarian_by_library():
+
+    try:
+        library = Library.objects.get(id=1)  # You can replace with an existing ID
+        librarian = Librarian.objects.get(library=library)
+        print(f"Librarian: {librarian.name} manages {library.name}")
+    except Library.DoesNotExist:
+        print("Library with id=1 does not exist.")
+    except Librarian.DoesNotExist:
+        print("No librarian assigned to this library.")
+
+
 if __name__ == "__main__":
     # Replace these names with actual data in your database
     author_name = "J.K. Rowling"
