@@ -38,7 +38,7 @@ def register_view(request):
     
     else:
         form = UserCreationForm()
-    return render(request, 'register.html', {'form':form})
+    return render(request, 'relationship_app/register.html', {'form':form})
 
 def login_view(request):
     if request.method == 'POST':
@@ -49,11 +49,11 @@ def login_view(request):
             return redirect('list_books')
     else:
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'relationship_app/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)
-    return render(request, 'logout.html')
+    return render(request, 'relationship_app/logout.html')
 
 @permission_required('relationship_app.can_add_book')
 def add_book(request):
