@@ -15,10 +15,8 @@ def home_view(request):
     return HttpResponse("Welcome to the Library app!")
 
 def list_books(request):
-    books = Book.objects.select_related('author').all() # Efficiently fetch related authors
-    lines = [f"{book.title} by {book.author.name}" for book in books]
-    response_text = "\n".join(lines)
-    return HttpResponse(response_text, content_type="text/plain")
+    books = Book.objects.all()
+    return render(request, "relationship_app/list_books.html", {"books": books})
 
 class LibraryDetailView(DetailView):
     model = Library
