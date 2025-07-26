@@ -6,7 +6,7 @@ from django.dispatch import receiver
 # Create your models here.
 class Author(models.Model):
     name = models.CharField(max_length=100)
-    
+
     def __str__(self):
         return self.name
 
@@ -21,6 +21,8 @@ class Book(models.Model):
             ("can_change_book", "Can change book"),
             ("can_delete_book", "Can delete book"),
         ]
+    def __str__(self):
+        return self.title
 class Library(models.Model):
     name = models.CharField(max_length=100)
     books = models.ManyToManyField(Book)
