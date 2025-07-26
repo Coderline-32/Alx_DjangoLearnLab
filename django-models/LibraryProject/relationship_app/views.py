@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Book
+from .models import Book, Library
 
 # Create your views here.
 def home_view(request):
