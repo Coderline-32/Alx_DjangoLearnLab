@@ -1,18 +1,15 @@
-# advanced_features_and_security/LibraryProject/bookshelf/views.py
-
-from django.shortcuts import render, redirect, get_object_or_404 # get_object_or_404 is needed again
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required # permission_required is needed again
+from django.contrib.auth.decorators import login_required, permission_required
 
-from .forms import ExampleForm # Keep this import for your ExampleForm
-from .models import CustomUser, Book # <-- Book model is in this app, so import it
-from bookshelf.forms import BookForm # <-- NEW: BookForm should be in THIS app's forms.py
-from relationship_app.models import Author # <-- Author needed by BookForm, so import it
+from .forms import ExampleForm, BookForm
+from .models import CustomUser, Book
+from relationship_app.models import Author
 
 
-# --- Example Form View (Included from your provided code) ---
+# --- Example Form View ---
 def example_form_view(request):
     """
     View to handle and display the ExampleForm.
@@ -47,6 +44,7 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'bookshelf/register.html', {'form': form})
 
+
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -66,23 +64,26 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'bookshelf/login.html', {'form': form})
 
+
 @login_required
 def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('login')
 
+
 @login_required
 def home_view(request):
     return render(request, 'bookshelf/home.html')
 
 
-# --- Book Management Views (MOVED BACK HERE) ---
+# --- Book Management Views ---
 
 @permission_required('bookshelf.can_view_book', raise_exception=True)
-def list_books(request): # This view now exists in bookshelf/views.py
+def book_list(request):  # <-- Renamed from list_books to book_list
     books = Book.objects.all()
     return render(request, 'bookshelf/list_books.html', {'books': books})
+
 
 @permission_required('bookshelf.can_create_book', raise_exception=True)
 def add_book(request):
@@ -91,7 +92,7 @@ def add_book(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Book added successfully!")
-            return redirect('list_books')
+            return redirect('book_list')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -99,6 +100,7 @@ def add_book(request):
     else:
         form = BookForm()
     return render(request, 'bookshelf/add_book.html', {'form': form})
+
 
 @permission_required('bookshelf.can_edit_book', raise_exception=True)
 def edit_book(request, pk):
@@ -108,7 +110,7 @@ def edit_book(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, "Book updated successfully!")
-            return redirect('list_books')
+            return redirect('book_list')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -117,6 +119,7 @@ def edit_book(request, pk):
         form = BookForm(instance=book)
     return render(request, 'bookshelf/edit_book.html', {'form': form, 'book': book})
 
+
 @permission_required('bookshelf.can_delete_book', raise_exception=True)
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -124,5 +127,5 @@ def delete_book(request, pk):
         book_title = book.title
         book.delete()
         messages.success(request, f"Book '{book_title}' deleted successfully!")
-        return redirect('list_books')
+        return redirect('book_list')
     return render(request, 'bookshelf/delete_book.html', {'book': book})
