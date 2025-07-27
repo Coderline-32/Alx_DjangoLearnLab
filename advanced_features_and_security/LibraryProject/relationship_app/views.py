@@ -1,11 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import HttpResponse
 from django.views.generic.detail import DetailView
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import permission_required, user_passes_test
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from relationship_app.models import Author, Book, Library, Librarian, UserProfile
+from bookshelf.forms import ExampleForm
+from bookshelf.models import CustomUser
 from django import forms
 from .models import Library
+from relationship_app.forms import BookForm
 
 # Import all necessary models
 from .models import Author, Book, Library, Librarian, UserProfile
@@ -18,6 +23,7 @@ def home_view(request):
     """
     return HttpResponse("Welcome to the Library app!")
 
+@permission_required('relationship_app.can_create_book', raise_exception=True)
 def list_books(request):
     """
     Function-based view to list all books and their authors.
@@ -84,6 +90,7 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'relationship_app/login.html', {'form': form})
 
+@login_required # Ensure user is logged in to logout
 def logout_view(request):
     """
     Handles user logout.
@@ -147,7 +154,7 @@ class BookForm(forms.ModelForm):
         # Ensure these fields match your Book model fields that you want to expose in the form
         fields = ['title', 'author'] # Add 'publication_year' if you added it to the model
 
-@permission_required('relationship_app.can_add_book', raise_exception=True)
+@permission_required('relationship_app.can_create_book', raise_exception=True)
 def add_book(request):
     """
     Allows users with 'can_add_book' permission to add new books.
@@ -162,7 +169,7 @@ def add_book(request):
         form = BookForm()
     return render(request, 'relationship_app/add_book.html', {'form': form})
 
-@permission_required('relationship_app.can_change_book', raise_exception=True)
+@permission_required('relationship_app.can_edit_book', raise_exception=True)
 def edit_book(request, pk):
     """
     Allows users with 'can_change_book' permission to edit existing books.
