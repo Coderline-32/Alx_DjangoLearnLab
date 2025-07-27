@@ -1,9 +1,9 @@
-# relationship_app/forms.py
-from django import forms
-from .models import Book, Author # Import Author if BookForm needs it for ForeignKey
+# advanced_features_and_security/LibraryProject/relationship_app/forms.py
 
-class BookForm(forms.ModelForm):
-    class Meta:
-        model = Book
-        fields = ['title', 'author', 'publication_year']
-        # You might want to add widgets or labels here for better UI
+from django import forms
+# from bookshelf.models import Book # <--- REMOVE THIS IMPORT (no longer needed here)
+from .models import Author, Library, Librarian, UserProfile # Keep other imports if needed for other forms
+
+# <--- REMOVE BookForm ENTIRELY FROM HERE ---
+# class BookForm(forms.ModelForm):
+#     # ... (removed) ...

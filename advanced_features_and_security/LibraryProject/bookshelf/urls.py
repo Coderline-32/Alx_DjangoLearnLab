@@ -6,11 +6,15 @@ from . import views # Import views from the bookshelf app
 app_name = 'bookshelf' # Define the app_name for URL namespacing (good practice)
 
 urlpatterns = [
-    # URL for the ExampleForm view
-    # This assumes you'll create a view named 'example_form_view' in bookshelf/views.py
-    path('example-form/', views.example_form_view, name='example_form'),
+    # --- Authentication URLs ---
+    path('register/', views.register_view, name='register'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('', views.home_view, name='home'), # Your main home page for the bookshelf app
 
-    # Add any other URLs specific to the 'bookshelf' app here if needed in the future
-    # For example, user profiles if they were managed directly by bookshelf views:
-    # path('profile/<str:username>/', views.user_profile_view, name='user_profile'),
+    # --- Book Management URLs (MOVED HERE) ---
+    path('books/', views.list_books, name='list_books'),
+    path('books/add/', views.add_book, name='add_book'),
+    path('books/<int:pk>/edit/', views.edit_book, name='edit_book'),
+    path('books/<int:pk>/delete/', views.delete_book, name='delete_book'),
 ]

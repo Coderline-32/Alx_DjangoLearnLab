@@ -1,5 +1,15 @@
 from django.shortcuts import render
 from .forms import ExampleForm
+from django.shortcuts import render, redirect, get_object_or_404 # get_object_or_404 is new here
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required # permission_required is new here
+
+from .models import CustomUser, Book # Book model is in this app
+from bookshelf.forms import BookForm # <--- NEW: Import BookForm from its new location
+from relationship_app.models import Author # <--- NEW: Author needed by BookForm
+
 # Create your views here.
 
 
@@ -28,3 +38,98 @@ def example_form_view(request):
         form = ExampleForm() # An empty form for GET requests
 
     return render(request, 'bookshelf/form_example.html', {'form': form})
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f"Account created for {user.username}!")
+            return redirect('home')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = UserCreationForm()
+    return render(request, 'bookshelf/register.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {username}!")
+                return redirect('home')
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'bookshelf/login.html', {'form': form})
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.info(request, "You have been logged out.")
+    return redirect('login')
+
+@login_required
+def home_view(request):
+    return render(request, 'bookshelf/home.html')
+
+
+# --- NEW: Book Management Views (Moved from relationship_app) ---
+
+@permission_required('bookshelf.can_view_book', raise_exception=True)
+def list_books(request):
+    books = Book.objects.all()
+    return render(request, 'bookshelf/list_books.html', {'books': books}) # <--- Template path changed
+
+@permission_required('bookshelf.can_create_book', raise_exception=True)
+def add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Book added successfully!")
+            return redirect('list_books')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = BookForm()
+    return render(request, 'bookshelf/add_book.html', {'form': form}) # <--- Template path changed
+
+@permission_required('bookshelf.can_edit_book', raise_exception=True)
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Book updated successfully!")
+            return redirect('list_books')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'bookshelf/edit_book.html', {'form': form, 'book': book}) # <--- Template path changed
+
+@permission_required('bookshelf.can_delete_book', raise_exception=True)
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        book.delete()
+        messages.success(request, "Book deleted successfully!")
+        return redirect('list_books')
+    return render(request, 'bookshelf/delete_book.html', {'book': book}) # <--- Template path changed

@@ -10,7 +10,7 @@ from bookshelf.forms import ExampleForm
 from bookshelf.models import CustomUser
 from django import forms
 from .models import Library
-from relationship_app.forms import BookForm
+from LibraryProject.bookshelf.forms import BookForm
 
 # Import all necessary models
 from .models import Author, Book, Library, Librarian, UserProfile
@@ -23,21 +23,6 @@ def home_view(request):
     """
     return HttpResponse("Welcome to the Library app!")
 
-@permission_required('relationship_app.can_create_book', raise_exception=True)
-def list_books(request):
-    """
-    Function-based view to list all books and their authors.
-    Renders an HTML template as expected by the checker.
-    Uses Book.objects.all() directly for checker compliance.
-    """
-    # Fetch all books. Using Book.objects.all() to satisfy the checker's literal string match.
-    # In a real application, if displaying author names, Book.objects.select_related('author').all()
-    # would be more efficient.
-    books = Book.objects.all()
-
-    # Render the list_books.html template and pass the books to it
-    # Ensure list_books.html is in relationship_app/templates/relationship_app/
-    return render(request, 'relationship_app/list_books.html', {'books': books})
 
 
 class LibraryDetailView(DetailView):
@@ -72,34 +57,6 @@ def register_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form})
-
-def login_view(request):
-    """
-    Handles user login.
-    Renders 'relationship_app/login.html'.
-    (Note: Your urls.py might be configured to use django.contrib.auth.views.LoginView directly,
-    bypassing this custom view, which is acceptable).
-    """
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('list_books') # Redirect to a suitable page after login
-    else:
-        form = AuthenticationForm()
-    return render(request, 'relationship_app/login.html', {'form': form})
-
-@login_required # Ensure user is logged in to logout
-def logout_view(request):
-    """
-    Handles user logout.
-    Renders 'relationship_app/logout.html'.
-    (Note: Your urls.py might be configured to use django.contrib.auth.views.LogoutView directly,
-    bypassing this custom view, which is acceptable).
-    """
-    logout(request)
-    return render(request, 'relationship_app/logout.html')
 
 
 # --- Role-Based Access Control Views (Task 3) ---
@@ -154,45 +111,3 @@ class BookForm(forms.ModelForm):
         # Ensure these fields match your Book model fields that you want to expose in the form
         fields = ['title', 'author'] # Add 'publication_year' if you added it to the model
 
-@permission_required('relationship_app.can_create_book', raise_exception=True)
-def add_book(request):
-    """
-    Allows users with 'can_add_book' permission to add new books.
-    Renders 'relationship_app/add_book.html'.
-    """
-    if request.method == 'POST':
-        form = BookForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('list_books') # Redirect to a relevant page after successful addition
-    else:
-        form = BookForm()
-    return render(request, 'relationship_app/add_book.html', {'form': form})
-
-@permission_required('relationship_app.can_edit_book', raise_exception=True)
-def edit_book(request, pk):
-    """
-    Allows users with 'can_change_book' permission to edit existing books.
-    Renders 'relationship_app/edit_book.html'.
-    """
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == 'POST':
-        form = BookForm(request.POST, instance=book)
-        if form.is_valid():
-            form.save()
-            return redirect('list_books') # Redirect to a relevant page after successful update
-    else:
-        form = BookForm(instance=book)
-    return render(request, 'relationship_app/edit_book.html', {'form': form, 'book': book})
-
-@permission_required('relationship_app.can_delete_book', raise_exception=True)
-def delete_book(request, pk):
-    """
-    Allows users with 'can_delete_book' permission to delete books.
-    Renders 'relationship_app/delete_book.html'.
-    """
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == 'POST':
-        book.delete()
-        return redirect('list_books') # Redirect to a relevant page after successful deletion
-    return render(request, 'relationship_app/delete_book.html', {'book': book})
