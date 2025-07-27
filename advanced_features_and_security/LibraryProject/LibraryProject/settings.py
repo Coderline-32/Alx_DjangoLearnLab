@@ -23,10 +23,34 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$ta^)#fyk2u0_1($24*z!%j!8gh2#no46_(r!!o6m*#pet#x85'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'your_domain.com', 'localhost']
 
+# Configure SECURE_BROWSER_XSS_FILTER, X_FRAME_OPTIONS, and SECURE_CONTENT_TYPE_NOSNIFF
+# SECURE_BROWSER_XSS_FILTER: Enables the X-XSS-Protection header, instructing browsers
+# to activate their built-in Cross-Site Scripting (XSS) filters. This provides an
+# additional layer of defense against XSS attacks.
+
+SECURE_BROWSER_XSS_FILTER = True
+
+# X_FRAME_OPTIONS: Prevents clickjacking attacks by disallowing your site from being
+# embedded in a frame. DENY is the strongest option.
+X_FRAME_OPTIONS = 'DENY'
+
+# SECURE_CONTENT_TYPE_NOSNIFF: Prevents browsers from "sniffing" the content type
+# of a response away from the declared Content-Type header. This helps mitigate
+# MIME-type sniffing vulnerabilities.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# CSRF_COOKIE_SECURE: Ensures the CSRF token cookie is only sent over HTTPS connections.
+# This prevents the CSRF token from being intercepted in plain text over insecure channels,
+# protecting against certain types of CSRF token theft.
+CSRF_COOKIE_SECURE =True
+
+# SESSION_COOKIE_SECURE: Ensures the session cookie is only sent over HTTPS connections.
+# This protects session IDs from being intercepted, which could lead to session hijacking.
+SESSION_COOKIE_SECURE = True
 
 # Application definition
 
@@ -39,10 +63,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookshelf',
     'relationship_app',
+    'csp',
+    
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware', # Content Security Policy middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,6 +77,33 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+# --- Content Security Policy (CSP) Settings (via django-csp) ---
+# Implemented using django-csp middleware to specify allowed content sources,
+# significantly reducing the risk of XSS attacks by preventing browsers from
+# loading unauthorized scripts, styles, or other resources.
+
+CONTENT_SECURITY_POLICY = {
+    'DIRECTIVES': {
+        'default-src': ("'self'",), # Allow content only from the same origin by default
+        'script-src': ("'self'",), # Allow JavaScript only from the same origin
+        'style-src': ("'self'", "'unsafe-inline'",), # Allow CSS from same origin and necessary inline styles
+        'img-src': ("'self'", 'data:', 'https://placehold.co'), # Allow images from same origin, data URIs, and specific external placeholder service
+        'font-src': ("'self'",), # Allow fonts only from the same origin
+        'connect-src': ("'self'",), # Allow network connections (XHR, WebSockets) only to the same origin
+        'object-src': ("'none'",), # Disallow <object>, <embed>, <applet> elements entirely
+        'base-uri': ("'self'",), # Restrict base URL for relative URLs
+        'form-action': ("'self'",), # Restrict form submission targets to the same origin
+        'frame-ancestors': ("'self'",), # Prevent embedding this page in iframes from other domains
+        # 'report-uri': '/csp-report/', # Optional: Configure a URL to receive CSP violation reports
+    },
+    # Optional: Set to True to only report violations without blocking them.
+    # CONTENT_SECURITY_POLICY_REPORT_ONLY = True
+}
+
+
+
 
 ROOT_URLCONF = 'LibraryProject.urls'
 
