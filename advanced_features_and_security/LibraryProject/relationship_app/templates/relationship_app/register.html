@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* A nice green for actions */
+            --primary-dark: #45a049;
+            --background-light: #f4f6f9;
+            --card-background: #ffffff;
+            --text-dark: #333;
+            --text-light: #666;
+            --border-color: #e0e0e0;
+            --focus-border: #8bc34a; /* Lighter green for focus */
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            background-color: var(--background-light);
+            /* Changed font-family to system fonts for faster loading */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+
+        .register-container {
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px var(--shadow-light), 0 4px 8px var(--shadow-medium);
+            text-align: center;
+            width: 100%;
+            max-width: 400px; /* Increased slightly for better form spacing */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--text-dark);
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 2.2em; /* Slightly larger for prominence */
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px; /* Spacing between form elements */
+        }
+
+        form p {
+            margin: 0; /* Reset default paragraph margin */
+            text-align: left;
+        }
+
+        /* Styling for labels */
+        form p label {
+            display: block; /* Make label take its own line */
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] { /* Target specific input types for better control */
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1em;
+            color: var(--text-dark);
+            box-sizing: border-box; /* Crucial for consistent width */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--focus-border);
+            outline: none; /* Remove default focus outline */
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Soft focus ring */
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 10px; /* Space above the button */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+
+        button:active {
+            transform: translateY(0); /* Press effect */
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>Create Account</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>
