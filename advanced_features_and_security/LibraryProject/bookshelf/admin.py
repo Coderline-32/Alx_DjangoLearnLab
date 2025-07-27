@@ -23,3 +23,5 @@ try:
     admin.site.unregister(User)
 except admin.sites.NotRegistered:
     pass
+
+admin.site.register(CustomUser, CustomUserAdmin)

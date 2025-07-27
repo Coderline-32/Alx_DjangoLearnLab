@@ -9,9 +9,4 @@ admin.site.register(Book)
 admin.site.register(Library)
 admin.site.register(Librarian)
 
-try:
-    admin.site.unregister(User)
-except admin.sites.NotRegistered:
-    pass
-
 
