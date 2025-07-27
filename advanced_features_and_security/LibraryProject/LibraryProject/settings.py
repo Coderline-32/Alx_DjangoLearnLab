@@ -27,30 +27,72 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'your_domain.com', 'localhost']
 
-# Configure SECURE_BROWSER_XSS_FILTER, X_FRAME_OPTIONS, and SECURE_CONTENT_TYPE_NOSNIFF
-# SECURE_BROWSER_XSS_FILTER: Enables the X-XSS-Protection header, instructing browsers
-# to activate their built-in Cross-Site Scripting (XSS) filters. This provides an
-# additional layer of defense against XSS attacks.
 
-SECURE_BROWSER_XSS_FILTER = True
 
-# X_FRAME_OPTIONS: Prevents clickjacking attacks by disallowing your site from being
-# embedded in a frame. DENY is the strongest option.
-X_FRAME_OPTIONS = 'DENY'
+# ============================================================
+# PRODUCTION SECURITY SETTINGS (Applied when DEBUG=False)
+# ============================================================
 
-# SECURE_CONTENT_TYPE_NOSNIFF: Prevents browsers from "sniffing" the content type
-# of a response away from the declared Content-Type header. This helps mitigate
-# MIME-type sniffing vulnerabilities.
-SECURE_CONTENT_TYPE_NOSNIFF = True
+if not DEBUG:
+    # ---------------------------------------------
+    # HTTPS Enforcement
+    # ---------------------------------------------
 
-# CSRF_COOKIE_SECURE: Ensures the CSRF token cookie is only sent over HTTPS connections.
-# This prevents the CSRF token from being intercepted in plain text over insecure channels,
-# protecting against certain types of CSRF token theft.
-CSRF_COOKIE_SECURE =True
+    # Redirect all HTTP requests to HTTPS to ensure secure communication.
+    # This setting ensures that all traffic is encrypted in transit.
+    SECURE_SSL_REDIRECT = True
 
-# SESSION_COOKIE_SECURE: Ensures the session cookie is only sent over HTTPS connections.
-# This protects session IDs from being intercepted, which could lead to session hijacking.
-SESSION_COOKIE_SECURE = True
+    # ---------------------------------------------
+    # HTTP Strict Transport Security (HSTS)
+    # ---------------------------------------------
+
+    # Tells browsers to only communicate with the server over HTTPS for a given period.
+    # Helps prevent protocol downgrade attacks and cookie hijacking.
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+
+    # Applies the HSTS policy to all subdomains as well (e.g., www.yoursite.com, api.yoursite.com).
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+    # Preload your domain in major browsers’ HSTS preload list.
+    # Requires submitting your domain to https://hstspreload.org
+    SECURE_HSTS_PRELOAD = True
+
+    # ---------------------------------------------
+    # Secure Cookies
+    # ---------------------------------------------
+
+    # Ensures session cookies are only sent over HTTPS connections.
+    # Prevents session hijacking via cookie theft over unsecured HTTP.
+    SESSION_COOKIE_SECURE = True
+
+    # Ensures CSRF cookies are only sent over HTTPS connections.
+    # Helps protect against CSRF token interception attacks.
+    CSRF_COOKIE_SECURE = True
+
+    # ---------------------------------------------
+    # Secure HTTP Headers
+    # ---------------------------------------------
+
+    # Protects against clickjacking by preventing your site from being embedded in an iframe.
+    # 'DENY' is the strictest setting and disallows all framing.
+    X_FRAME_OPTIONS = 'DENY'
+
+    # Prevents the browser from MIME-sniffing the response and forces it to respect the Content-Type header.
+    # Helps mitigate MIME-type confusion vulnerabilities.
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    # Enables the browser's built-in XSS filtering mechanism.
+    # Although largely redundant in modern browsers, it adds a layer of legacy protection.
+    SECURE_BROWSER_XSS_FILTER = True
+
+    # ---------------------------------------------
+    # Proxy Header (for deployments behind reverse proxy)
+    # ---------------------------------------------
+
+    # Informs Django that it should trust the 'X-Forwarded-Proto' header from a proxy (like Nginx)
+    # to determine if the original request was HTTPS.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
