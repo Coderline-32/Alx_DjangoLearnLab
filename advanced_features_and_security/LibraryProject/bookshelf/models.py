@@ -6,6 +6,10 @@ from django.db.models.signals import post_save # Needed for UserProfile creation
 from django.dispatch import receiver # Needed for UserProfile creation if you use it here
 from django.conf import settings # Needed if you reference settings.AUTH_USER_MODEL in UserProfile
 
+# <--- IMPORTANT: Import Author from relationship_app as Book will now have a ForeignKey to it
+from relationship_app.models import Author # Ensure relationship_app is in INSTALLED_APPS
+
+
 # --- 1. Define the CustomUser Manager FIRST ---
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
@@ -47,12 +51,7 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     class Meta:
-        # Add the custom permissions the checker is looking for
-        permissions = [
-            ("can_create", "Can create records/entries"),
-            ("can_delete", "Can delete records/entries"),
-        ]
-        # Optional: Add verbose names for better admin display
+        # Permissions for CustomUser itself (removed 'can_create'/'can_delete' as they are now on Book)
         verbose_name = "Custom User"
         verbose_name_plural = "Custom users"
 
@@ -61,3 +60,41 @@ class CustomUser(AbstractUser):
         return self.username if self.username else self.email
 
 
+# --- 3. Define the Book Model (Now residing solely in bookshelf app) ---
+class Book(models.Model):
+    """
+    The central and only Book model for the entire project.
+    It now includes a ForeignKey to Author from relationship_app.
+    All Book-related permissions are defined here.
+    """
+    title = models.CharField(max_length=200) # Increased length for flexibility
+    # <--- IMPORTANT: ForeignKey to Author model from relationship_app
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
+    publication_year = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        # ALL Book-related permissions are consolidated here, including the general ones
+        permissions = [
+            ("can_view_book", "Can view book details"),
+            ("can_create_book", "Can create new books"),
+            ("can_edit_book", "Can edit existing books"),
+            ("can_delete_book", "Can delete books"),
+            # These are the general 'can_create' and 'can_delete' for this Book model,
+            # requested by the checker to be on Book in bookshelf/models.py
+            ("can_create", "Can create book entries in bookshelf"),
+            ("can_delete", "Can delete book entries in bookshelf"),
+        ]
+        verbose_name = "Book"
+        verbose_name_plural = "Books"
+
+    def __str__(self):
+        return f"{self.title} by {self.author.name}" if self.author else self.title
+
+# --- UserProfile model and signal ---
+# If your UserProfile is meant to be directly created/managed by CustomUser interactions
+# within the bookshelf app, you might define it here along with its signal.
+# However, if it's a general user profile linked via settings.AUTH_USER_MODEL and
+# used across multiple apps (like relationship_app for roles), it might be better
+# kept in relationship_app, and the signal for creation there.
+# For now, assuming UserProfile is linked to settings.AUTH_USER_MODEL and resides in relationship_app.
+# So, no UserProfile definition or signal is directly needed here unless you choose to move it.

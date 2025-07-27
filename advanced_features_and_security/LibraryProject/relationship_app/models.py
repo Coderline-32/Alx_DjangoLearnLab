@@ -1,38 +1,28 @@
+# advanced_features_and_security/LibraryProject/relationship_app/models.py
+
 from django.db import models
-from django.conf import settings # <-- NEW: Import settings to reference AUTH_USER_MODEL
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+# <--- IMPORTANT: Add this import to reference the Book model in bookshelf app
+from bookshelf.models import Book
 
-# --- Custom User Model (Defined first as it's referenced by UserProfile) ---
 
 # Create your models here.
 class Author(models.Model):
-    name = models.CharField(max_length=100) # Consistent with previous
+    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
-class Book(models.Model):
-    title = models.CharField(max_length=200) # Reverted to 200 from 100 for consistency
-    author = models.ForeignKey(Author, on_delete = models.CASCADE, related_name='books') # <-- ADDED related_name
-    publication_year = models.PositiveIntegerField(null=True, blank=True)
-
-    class Meta:
-        permissions = [
-            ("can_view_book", "Can view book details"),
-            ("can_create_book", "Can create new books"),
-            ("can_edit_book", "Can edit existing books"),
-            ("can_delete_book", "Can delete books"),
-        ]
-        
-    def __str__(self):
-        return self.title
+# --- REMOVED: The Book model class definition was here ---
 
 class Library(models.Model):
-    name = models.CharField(max_length=200) # Reverted to 200 from 100 for consistency
-    address = models.CharField(max_length=300) # Reverted to 300 from 255 for consistency
-    books = models.ManyToManyField(Book, related_name='libraries') # <-- ADDED related_name
+    name = models.CharField(max_length=200)
+    address = models.CharField(max_length=300)
+    # <--- IMPORTANT: This ManyToManyField now refers to the Book model in bookshelf.models
+    books = models.ManyToManyField(Book, related_name='libraries')
     def __str__(self):
         return self.name
 
@@ -42,26 +32,20 @@ class Librarian(models.Model):
     def __str__(self):
         return self.name
 
-# --- FIXED UserProfile ---
 class UserProfile(models.Model):
-    # This was duplicated and pointing to the wrong User model.
-    # It must point to the custom user model defined by AUTH_USER_MODEL in settings.
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='userprofile')
-    
+
     ROLE_CHOICES = [
         ('Admin', 'Admin'),
         ('Librarian', 'Librarian'),
         ('Member', 'Member'),
     ]
-    # max_length=20 is fine, even if choices are shorter.
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Member')
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
 
-# --- FIXED post_save receiver ---
-# The sender must be your CustomUser model, not the default Django User model.
-@receiver(post_save, sender=settings.AUTH_USER_MODEL) # Use settings.AUTH_USER_MODEL here as well
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance, role='Member')
