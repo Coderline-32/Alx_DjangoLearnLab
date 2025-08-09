@@ -26,7 +26,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     and a nested serialization of related books using BookSerializer.
     """
 
-    books = BookSerializer(many=True, read_only=True, source='books')
+    books = BookSerializer(many=True, read_only=True)
     class Meta:
         model = Author
         fields = ['name', 'books']
