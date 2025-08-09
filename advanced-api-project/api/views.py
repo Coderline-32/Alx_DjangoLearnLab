@@ -1,6 +1,7 @@
 # api/views.py
 from rest_framework import generics, permissions, filters
 from .models import Book
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .serializers import BookSerializer
 
 # List all books (open to everyone)
@@ -9,20 +10,19 @@ class BookListView(generics.ListAPIView):
     serializer_class = BookSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'author'] 
-    permission_classes = [permissions.AllowAny]  # read-only for all users
-
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 # Retrieve single book by ID (open to everyone)
 class BookDetailView(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 # Create a new book (authenticated users only)
 class BookCreateView(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         # Optional: You can add custom logic here, e.g., associate with user
