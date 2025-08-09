@@ -3,7 +3,7 @@ from rest_framework import generics, permissions, filters
 from .models import Book
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .serializers import BookSerializer
-from django_filters import rest_framework as django_filters
+from django_filters import rest_framework 
 from django_filters.rest_framework import DjangoFilterBackend
 # List all books (open to everyone)
 class BookListView(generics.ListAPIView):
