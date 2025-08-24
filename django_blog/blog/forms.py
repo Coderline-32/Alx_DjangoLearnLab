@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth.models import User
-from .models import Post, Comment
+from .models import Post, Comment, Tag
+from taggit.forms import TagWidget
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -15,9 +16,6 @@ class UserProfileUpdateForm(UserChangeForm):
         model = User
         fields = ['first_name', 'last_name', 'email']
 
-# blog/forms.py
-from django import forms
-from .models import Post, Tag
 
 
 class PostForm(forms.ModelForm):
@@ -29,6 +27,10 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ["title", "content", "tags"]
+    
+    widgets = {
+            'tags': TagWidget(),
+        }
 
     def save(self, commit=True):
         # Save the Post instance first
