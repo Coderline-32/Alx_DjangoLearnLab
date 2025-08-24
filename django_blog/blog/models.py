@@ -12,7 +12,11 @@ class Post(models.Model):
     content = models.TextField()
     published_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_posts')
-    tags = TaggableManager()
+    
+    tags = models.ManyToManyField("Tag", related_name="posts", blank=True)
+
+    class Meta:
+        ordering = ["-published_date"]
 
     def __str__(self):
         return self.title
@@ -23,6 +27,17 @@ class Post(models.Model):
         """
         return reverse('blog:post_detail', kwargs={'pk': self.pk})
 
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+    
+    
 class Comment(models.Model):
     """
     Represents a comment made on a blog post.
