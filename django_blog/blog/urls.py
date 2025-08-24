@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .views import PostByTagListView
 
 app_name = 'blog'
 
@@ -19,6 +20,7 @@ urlpatterns = [
     path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='edit_comment'),
     path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='delete_comment'),
     path('tags/<slug:tag_slug>/', views.TaggedPostListView.as_view(), name='tagged_post_list'),
+    path("tag/<str:tag_name>/", PostByTagListView.as_view(), name="posts_by_tag"),
 
 
 ]

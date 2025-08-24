@@ -8,6 +8,7 @@ from django.db.models import Q
 from .forms import CustomUserCreationForm, UserProfileUpdateForm, PostForm, CommentForm
 from .models import Post, Comment
 from django.db.models import Count
+from taggit.models import Tag
 
 
 # Create your views here.
@@ -165,4 +166,18 @@ class TaggedPostListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['tag'] = self.kwargs.get('tag_slug')
+        return context
+    
+class PostByTagListView(ListView):
+    model = Post
+    template_name = "blog/post_by_tag.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        tag = get_object_or_404(Tag, name=self.kwargs.get("tag_name"))
+        return Post.objects.filter(tags__in=[tag])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tag"] = self.kwargs.get("tag_name")
         return context
