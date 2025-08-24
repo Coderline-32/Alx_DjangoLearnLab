@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{% url 'blog:post_list' %}" class="logo">My Blog</a>
+            <div class="nav-links">
+                <form action="{% url 'blog:search_results' %}" method="get" class="search-form">
+                    <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q }}">
+                    <button type="submit">Search</button>
+                </form>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'blog:profile' %}">Profile</a>
+                    <form action="{% url 'blog:logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background:none; border:none; color:rgb(43, 40, 40); cursor:pointer; padding:0;"><u>Logout</u></button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'blog:register' %}">Register</a>
+                    <a href="{% url 'blog:login' %}">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Django Blog</p>
+    </footer>
+</body>
+</html>
