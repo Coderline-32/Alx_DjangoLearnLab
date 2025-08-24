@@ -15,8 +15,8 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('profile/', views.profile, name='profile'),
     path('search/', views.SearchResultsView.as_view(), name='search_results'),
-     path('post/<int:pk>/comment/', views.add_comment, name='add_comment'),
-    path('post/<int:pk>/comment/<int:comment_pk>/edit/', views.edit_comment, name='edit_comment'),
-    path('post/<int:pk>/comment/<int:comment_pk>/delete/', views.delete_comment, name='delete_comment'),
+     path('post/<int:pk>/comment/new/', views.add_comment, name='add_comment'),
+    path('comment/<int:pk>/update/', views.edit_comment, name='edit_comment'),
+    path('comment/<int:pk>/delete/', views.delete_comment, name='delete_comment'),
 
 ]
