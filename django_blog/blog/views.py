@@ -110,3 +110,35 @@ class SearchResultsView(ListView):
                 Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
             ).distinct()
         return Post.objects.none()
+
+@login_required
+def add_comment(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+    return redirect('blog:post_detail', pk=pk)
+
+@login_required
+def edit_comment(request, pk, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk, author=request.user, post__pk=pk)
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('blog:post_detail', pk=pk)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, 'blog/comment_form.html', {'form': form, 'comment': comment})
+
+@login_required
+def delete_comment(request, pk, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk, author=request.user, post__pk=pk)
+    if request.method == 'POST':
+        comment.delete()
+        return redirect('blog:post_detail', pk=pk)
+    return render(request, 'blog/comment_confirm_delete.html', {'comment': comment})
