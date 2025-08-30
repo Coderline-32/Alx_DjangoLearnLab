@@ -40,15 +40,14 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-@api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
-def feed(request):
-    # Get all users the current user follows
-    followed_users = request.user.following.all()
-    # Get posts only from followed users
-    posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
-    serializer = PostSerializer(posts, many=True)
-    return Response(serializer.data)
+class FeedView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        following_users = user.following.all()  
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
 
 
 class LikePostView(generics.GenericAPIView):
