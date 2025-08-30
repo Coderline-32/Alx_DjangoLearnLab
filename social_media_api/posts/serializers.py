@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Comment
+from .models import Post, Comment, Like
 from django.conf import settings
 
 User = settings.AUTH_USER_MODEL
@@ -35,3 +35,11 @@ class PostSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         validated_data['author'] = user
         return super().create(validated_data)
+    
+class LikeSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)  # Shows username instead of ID
+    post = serializers.PrimaryKeyRelatedField(read_only=True)  # Shows post ID only
+
+    class Meta:
+        model = Like
+        fields = ['id', 'user', 'post', 'created_at'] 

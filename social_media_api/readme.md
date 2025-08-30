@@ -1,7 +1,7 @@
 # Django Custom User Authentication & Social Media API
 
 This Django project implements a **custom user model** with additional fields (`bio`, `profile_picture`, `following`) and provides **user registration, login, and token-based authentication** using Django REST Framework (DRF).  
-Additionally, it includes **Posts and Comments functionality**, as well as a **follow system and dynamic feed**, allowing users to follow others and see posts from followed users.
+Additionally, it includes **Posts, Comments, Follow System, Dynamic Feed, Likes, and Notifications**, allowing users to fully interact in a social media environment.
 
 ---
 
@@ -35,7 +35,26 @@ Additionally, it includes **Posts and Comments functionality**, as well as a **f
   - Displays posts from users that the current user follows
   - Ordered by creation date (most recent first)
   - Accessible via `/feed/` endpoint
-- API endpoints fully documented for follow/unfollow actions and feed retrieval
+
+### Likes
+- Users can **like and unlike posts**
+- Prevents duplicate likes
+- Endpoints:
+  - `POST /posts/<id>/like/`
+  - `POST /posts/<id>/unlike/`
+
+### Notifications
+- Users receive notifications when:
+  - Someone follows them
+  - Someone likes their post
+  - Someone comments on their post
+- Notifications include:
+  - `recipient` (who gets notified)
+  - `actor` (who performed the action)
+  - `verb` (what happened, e.g., "liked your post")
+  - `target` (object of the action, e.g., post or comment)
+  - `timestamp`
+- Endpoint: `/notifications/` (shows unread notifications prominently)
 
 ---
 
@@ -51,7 +70,6 @@ Additionally, it includes **Posts and Comments functionality**, as well as a **f
 ## Installation
 
 1. **Clone the repository**
-
-```bash
-git clone <your-repo-url>
-cd <your-project-folder>
+   ```bash
+   git clone <your-repo-url>
+   cd <your-project-folder>
